@@ -19,6 +19,8 @@ func main() {
 	e.GET("/", hello)
 	e.GET("/test", test)
 
+	e.GET("/user/:id", getUser)
+
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
 }
@@ -29,4 +31,9 @@ func hello(c echo.Context) error {
 }
 func test(c echo.Context) error {
 	return c.String(http.StatusOK, "Hi, This is a test page")
+}
+
+func getUser(c echo.Context) error {
+	id := c.Param("id")
+	return c.String(http.StatusOK, "User Id is: "+id)
 }
