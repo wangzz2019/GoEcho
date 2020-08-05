@@ -21,6 +21,8 @@ func main() {
 
 	e.GET("/user/:id", getUser)
 
+	e.File("/home", "goweb.html")
+	e.Static("/img", "img")
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
 }
