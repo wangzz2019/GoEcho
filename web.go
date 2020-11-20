@@ -64,7 +64,8 @@ func gettoken(c echo.Context) (err error) {
 	var Token string
 	if Account.ID == "jack" && Account.PASS == "wang" {
 		Token = "TokenStringABCDEFG"
-		return c.JSON(http.StatusOK, Token)
+		// return c.JSON(http.StatusOK, Token)
+		return c.String(http.StatusOK, Token)
 	}
 	Token = "error!"
 	return c.JSON(http.StatusNonAuthoritativeInfo, Token)
