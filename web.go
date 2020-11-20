@@ -67,10 +67,10 @@ func gettoken(c echo.Context) (err error) {
 		return c.JSON(http.StatusOK, Token)
 	} else {
 		Token = "error!"
-		return c.JSON(http.stat, Token)
+		return c.JSON(http.StatusNonAuthoritativeInfo, Token)
 	}
 
-	return c.JSON(http.StatusOK, Token)
+	// return c.JSON(http.StatusOK, Token)
 }
 func checktoken(c echo.Context) error {
 	return nil
