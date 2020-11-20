@@ -65,15 +65,17 @@ func gettoken(c echo.Context) (err error) {
 	if Account.ID == "jack" && Account.PASS == "wang" {
 		Token = "TokenStringABCDEFG"
 		return c.JSON(http.StatusOK, Token)
-	} else {
-		Token = "error!"
-		return c.JSON(http.StatusNonAuthoritativeInfo, Token)
 	}
-
+	Token = "error!"
+	return c.JSON(http.StatusNonAuthoritativeInfo, Token)
 	// return c.JSON(http.StatusOK, Token)
 }
 func checktoken(c echo.Context) error {
-	return nil
+	token := c.Request().Header.Get("Authorization")
+	if token == "TokenStringABCDEFG" {
+		return c.JSON(http.StatusOK, "PASS!")
+	}
+	return c.JSON(http.StatusUnauthorized, "Not Pass!")
 }
 func hello(c echo.Context) error {
 	// log an event as usual with logrus
