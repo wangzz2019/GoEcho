@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: gowebapm-deployment
+spec:
+    selector:
+        matchLabels:
+            app: gowebapm
+    replicas: 3
+    template:
+        metadata:
+            labels:
+                app: gowebapm
+        spec:
+            containers:
+            - name: gowebapm
+              image: wangzz2017/gowebapm
+              env:
+                - name: DD_AGENT_HOST
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: status.hostIP
+              ports:
+              - containerPort: 1323
+
+
+
+
+
