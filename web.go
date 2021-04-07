@@ -63,6 +63,12 @@ func main() {
 
 // Handler
 func webhook(c echo.Context) (err error){
+	buf := make([]byte, 1024)
+	n, _ := c.Request().Body.Read(buf)
+	println(string(buf[0:n]))
+	// baseInfoByte := map[string]
+	// err = json.Unmarshal(buf[0:n], &baseInfoByte)
+	// fmt.Println(baseInfoByte)
 	return nil
 }
 func ddapi(c echo.Context) (err error){
