@@ -1,2 +1,0 @@
-{"float":1.1,"int":1,"level":"info","msg":"My first event from golang to stdout","string":"foo","time":"2020-11-20T11:00:09+09:00"}
-{"appname":"foo-app","hostname":"staging-1","level":"info","msg":"Simple event with global metadata","session":"1ce3f6v","time":"2020-11-20T11:00:09+09:00"}

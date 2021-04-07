@@ -3,11 +3,15 @@ package main
 import (
 	"net/http"
 	"os"
-
+	"fmt"
+	"time"
+	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	datadog "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
+	"context"
 )
 
 type AccountType struct {
@@ -49,6 +53,8 @@ func main() {
 	//Post
 	e.POST("/gettoken", gettoken)
 	e.POST("/checktoken", checktoken)
+	e.POST("/webhook",webhook)
+	e.POST("/ddapi",ddapi)
 	e.Static("/img", "img")
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
@@ -56,6 +62,34 @@ func main() {
 }
 
 // Handler
+func webhook(c echo.Context) (err error){
+	return nil
+}
+func ddapi(c echo.Context) (err error){
+	ctx := datadog.NewDefaultContext(context.Background())
+	filterQuery := "filename:jack.log" // string | Search query following logs syntax. (optional)
+    filterIndex := "main" // string | For customers with multiple indexes, the indexes to search Defaults to '*' which means all indexes (optional)
+    filterFrom := time.Now().Add(-time.Minute * 15) // time.Time | Minimum timestamp for requested logs. (optional)
+    filterTo := time.Now() // time.Time | Maximum timestamp for requested logs. (optional)
+    sort := datadog.LogsSort("timestamp") // LogsSort | Order of logs in results. (optional)
+    // pageCursor := "eyJzdGFydEF0IjoiQVFBQUFYS2tMS3pPbm40NGV3QUFBQUJCV0V0clRFdDZVbG8zY3pCRmNsbHJiVmxDWlEifQ==" // string | List following results with a cursor provided in the previous query. (optional)
+    pageLimit := int32(25) // int32 | Maximum number of logs in the response. (optional) (default to 10)
+
+    configuration := datadog.NewConfiguration()
+
+    apiClient := datadog.NewAPIClient(configuration)
+    resp, r, err := apiClient.LogsApi.ListLogsGet(ctx).FilterQuery(filterQuery).FilterIndex(filterIndex).FilterFrom(filterFrom).FilterTo(filterTo).Sort(sort).PageLimit(pageLimit).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.ListLogsGet``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `ListLogsGet`: LogsListResponse
+    responseContent, _ := json.MarshalIndent(resp, "", "  ")
+    fmt.Fprintf(os.Stdout, "Response from LogsApi.ListLogsGet:\n%s\n", responseContent)
+
+	return nil
+}
+
 func gettoken(c echo.Context) (err error) {
 	Account := new(AccountType)
 	if err = c.Bind(Account); err != nil {
