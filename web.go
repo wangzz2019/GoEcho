@@ -129,10 +129,10 @@ func callddapi(qs string) {
 
 // Handler
 func webhook(c echo.Context) (err error) {
-	return c.JSON(http.StatusInternalServerError, "I made the internal error!")
+	// return c.JSON(http.StatusInternalServerError, "I made the internal error!")
 	buf := make([]byte, 2048)
 	n, _ := c.Request().Body.Read(buf)
-	// println(string(buf[0:n]))
+	println(string(buf[0:n]))
 	// baseInfoByte := map[string]interface{}
 	var baseInfoByte map[string]interface{}
 	err = json.Unmarshal(buf[0:n], &baseInfoByte)
