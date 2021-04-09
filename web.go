@@ -99,12 +99,15 @@ func callddapi(qs string) {
 	}
 	// response from `ListLogsGet`: LogsListResponse
 	responseContent, _ := json.MarshalIndent(resp, "", "  ")
-	fmt.Fprintf(os.Stdout, "Response from LogsApi.ListLogsGet:\n%s\n", responseContent)
+	// fmt.Fprintf(os.Stdout, "Response from LogsApi.ListLogsGet:\n%s\n", responseContent)
 	js, err := simplejson.NewJson(responseContent)
 	if err != nil {
 		panic(err.Error())
 	}
 	logsarr, err := js.Get("data").Array()
+	if err != nil {
+		return
+	}
 	logcount := len(logsarr)
 	if logcount == 0 {
 		fmt.Println("There is no error logs in last 15m")
