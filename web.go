@@ -118,11 +118,13 @@ func callddapi(qs string) {
 	// fmt.Println(js.Get("data").GetIndex(0).Get("attributes").Get("attributes"))
 	for i := 0; i < logcount; i++ {
 		jsdata := js.Get("data").GetIndex(i).Get("attributes").Get("attributes")
+		msgdata := js.Get("data").GetIndex(i).Get("attributes").Get("message")
 		unjsdata, err := jsdata.MarshalJSON()
-		if err != nil {
+		unmsgdata, err1 := msgdata.MarshalJSON()
+		if err != nil && err1 != nil {
 			return
 		}
-		fmt.Printf("%s\n", unjsdata)
+		fmt.Printf("%s, message is: %s\n", unjsdata, unmsgdata)
 	}
 
 }
