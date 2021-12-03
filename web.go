@@ -11,11 +11,11 @@ import (
 	"time"
 
 	datadog "github.com/DataDog/datadog-api-client-go/api/v2/datadog"
-	log "github.com/Sirupsen/logrus"
 	"github.com/bitly/go-simplejson"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+	log "github.com/sirupsen/logrus"
+	tracer "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 type AccountType struct {
@@ -35,8 +35,8 @@ func main() {
 	tracer.Start(
 		tracer.WithEnv("prod"),
 		tracer.WithService("goweb"),
-		tracer.WithDebugMode(true),
-		//tracer.WithVersion("abc123"),
+		// tracer.WithDebugMode(true),
+		tracer.WithServiceVersion("1.0"),
 	)
 
 	// Echo instance
@@ -64,8 +64,9 @@ func main() {
 	// getQueryString()
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
 	defer tracer.Stop()
+	e.Logger.Fatal(e.Start(":1323"))
+
 }
 
 //test tools
@@ -81,6 +82,7 @@ func getQueryString(s string) string {
 
 func callddapi(qs string) {
 	ctx := datadog.NewDefaultContext(context.Background())
+
 	filterQuery := qs                               // string | Search query following logs syntax. (optional)
 	filterIndex := "main"                           // string | For customers with multiple indexes, the indexes to search Defaults to '*' which means all indexes (optional)
 	filterFrom := time.Now().Add(-time.Minute * 15) // time.Time | Minimum timestamp for requested logs. (optional)
@@ -89,10 +91,20 @@ func callddapi(qs string) {
 	// pageCursor := "eyJzdGFydEF0IjoiQVFBQUFYS2tMS3pPbm40NGV3QUFBQUJCV0V0clRFdDZVbG8zY3pCRmNsbHJiVmxDWlEifQ==" // string | List following results with a cursor provided in the previous query. (optional)
 	pageLimit := int32(25) // int32 | Maximum number of logs in the response. (optional) (default to 10)
 
+	optionalParams := datadog.ListLogsGetOptionalParameters{
+		FilterQuery: &filterQuery,
+		FilterIndex: &filterIndex,
+		FilterFrom:  &filterFrom,
+		FilterTo:    &filterTo,
+		Sort:        &sort,
+		// PageCursor: &pageCursor,
+		PageLimit: &pageLimit,
+	}
 	configuration := datadog.NewConfiguration()
 
 	apiClient := datadog.NewAPIClient(configuration)
-	resp, r, err := apiClient.LogsApi.ListLogsGet(ctx).FilterQuery(filterQuery).FilterIndex(filterIndex).FilterFrom(filterFrom).FilterTo(filterTo).Sort(sort).PageLimit(pageLimit).Execute()
+	// resp, r, err := apiClient.LogsApi.ListLogsGet(ctx).FilterQuery(filterQuery).FilterIndex(filterIndex).FilterFrom(filterFrom).FilterTo(filterTo).Sort(sort).PageLimit(pageLimit).Execute()
+	resp, r, err := apiClient.LogsApi.ListLogsGet(ctx, optionalParams)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.ListLogsGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -164,11 +176,20 @@ func ddapi(c echo.Context) (err error) {
 	sort := datadog.LogsSort("timestamp")           // LogsSort | Order of logs in results. (optional)
 	// pageCursor := "eyJzdGFydEF0IjoiQVFBQUFYS2tMS3pPbm40NGV3QUFBQUJCV0V0clRFdDZVbG8zY3pCRmNsbHJiVmxDWlEifQ==" // string | List following results with a cursor provided in the previous query. (optional)
 	pageLimit := int32(25) // int32 | Maximum number of logs in the response. (optional) (default to 10)
-
+	optionalParams := datadog.ListLogsGetOptionalParameters{
+		FilterQuery: &filterQuery,
+		FilterIndex: &filterIndex,
+		FilterFrom:  &filterFrom,
+		FilterTo:    &filterTo,
+		Sort:        &sort,
+		// PageCursor: &pageCursor,
+		PageLimit: &pageLimit,
+	}
 	configuration := datadog.NewConfiguration()
 
 	apiClient := datadog.NewAPIClient(configuration)
-	resp, r, err := apiClient.LogsApi.ListLogsGet(ctx).FilterQuery(filterQuery).FilterIndex(filterIndex).FilterFrom(filterFrom).FilterTo(filterTo).Sort(sort).PageLimit(pageLimit).Execute()
+	// resp, r, err := apiClient.LogsApi.ListLogsGet(ctx).FilterQuery(filterQuery).FilterIndex(filterIndex).FilterFrom(filterFrom).FilterTo(filterTo).Sort(sort).PageLimit(pageLimit).Execute()
+	resp, r, err := apiClient.LogsApi.ListLogsGet(ctx, optionalParams)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.ListLogsGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -212,7 +233,7 @@ func hello(c echo.Context) error {
 		"session":  "1ce3f6v"})
 
 	contextualizedLog.Info("Simple event with global metadata")
-	return c.String(http.StatusOK, "Hello, World! This is jack's first echo web!")
+	return c.String(http.StatusOK, "Hello, World! This is jack's first echo web!!!!!!!")
 }
 func test(c echo.Context) error {
 	return c.String(http.StatusOK, "Hi, This is a test page")
